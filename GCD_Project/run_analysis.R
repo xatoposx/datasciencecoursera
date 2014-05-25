@@ -2,28 +2,50 @@
 # ----- R script to get tidy data from the upstream data -------
 # ==============================================================
 
-# Source this file to reproduce the process
+# --------------------------------------------------------------
+# TODO:
+#
+# - Adapt with libraries 'data.table' and 'dplyr' for better 
+#   performance.
+# ---------------------------------------------------------------
 
 #### Initial working environment
+# A new working directory is created to extract the archive.
+# This is for convenience. If different versions of the upstream
+# data are going to be processed, we need to keep different working
+# directories for each one. This is the case when different releases
+# are downloaded and multiple directories must have a unique
+# name. Uniqueness is guaranteed adding a sys.time numeric value.
 upstream <- "https://d396qusza40orc.cloudfront.net/getdata/projectfiles/UCI%20HAR%20Dataset.zip"
 srcfile  <- "UHD.zip"
 date     <- Sys.time()
-wkdir    <- "UHD"
-# If you didn't want potential clashes between data sets
-# downloaded in different times use this one instead
+
+# FOR PEERS!!!
+# For peer reviewing we have commented the following line and provided
+# a simpler version instead. Please, change the wkdir assignment if
+# you have already a working directory with a different name.
+
 # wkdir   <- file.path("." , paste("UHD", unclass(date), sep=""))
+wkdir    <- "UHD"
 # ---------------------------------------------------------------
 
 #### Download and decompress dataset
-# Uncomment this if you want to get the tarball and unzip by yourself
-message("Downloading upstream data...")
-download.file(upstream, dest=srcfile, method="curl") 
-# Create directory for decompressing files
-dir.create(wkdir)
+# FOR PEERS!!!
+# Uncomment the following two lines if you want to downlaod the data 
+# by yourself. If not, this script, as it is, assumes that it resides 
+# in the same directory as the zip file, and that the zip file is 
+# named UHD.zip. See comment below.
+#message("Downloading upstream data...")
+#download.file(upstream, dest=srcfile, method="curl") 
+# Create directory for decompressing files if it does not exist
+if (!file.exists(wkdir)) dir.create(wkdir)
 
 # Decompress
-message("Decompressing...")
-unzip(srcfile, exdir=wkdir)
+# FOR PEERS!!!
+# Uncomment the following lines if you want to unzip the file.
+# See also the comment below if you need to adapt things.
+#message("Decompressing...")
+#!!! unzip(srcfile, exdir=wkdir)
 
 # Change working directory
 setwd(wkdir)
@@ -86,14 +108,14 @@ for (i in 1:length(patts)) {
 }
 
 # If you prefer variable names in lowercase, and spaces (or underscores) 
-# separating word instead of camelCase style, exectue, respectivelly, 
+# separating word instead of camelCase style, exectue, respectively, 
 # two of the following commands
 #feature_names   <- gsub("([[:upper:]])", " \\L\\1", feature_names, perl=TRUE)
 #target_features <- gsub("([[:upper:]])", " \\L\\1", target_features, perl=TRUE)
 #feature_names   <- gsub("([[:upper:]])", "_\\L\\1", feature_names, perl=TRUE)
 #target_features <- gsub("([[:upper:]])", "_\\L\\1", target_features, perl=TRUE)
 
-## Naming columns in data.frames
+## Name columns in data.frames
 names(subject_train) <- "subject"
 names(subject_test)  <- "subject"
 names(y_train)       <- "activity"
@@ -109,7 +131,8 @@ names(X_test)        <- feature_names
 # subject_train |  y_train   |   X_train
 # subject_test  |  y_test    |   X_test
 
-# Merge train and test data.frames]
+# Merge train and test data.frames. ['merge' (or 'join' from dplyr)
+# could also be used instead of basic 'rbind', 'cbind']
 message("Merging...")
 subject       <- rbind(subject_train, subject_test)
 activity      <- rbind(y_train,       y_test)
